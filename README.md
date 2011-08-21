@@ -9,7 +9,7 @@ You must have ClojureScript already setup and have $CLOJURESCRIPT_HOME correctly
 Put `cljs-watch` on your $PATH (such as in /usr/local/bin) and then simply run it from your project root:
 
 ```bash
-#without options is watches the src/ directory
+#without options it watches the src/ directory
 cljs-watch
 
 #it can also take a directory and compile options
