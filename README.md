@@ -1,8 +1,10 @@
 # CLJS watcher
 
-A simple shell script that watched for changes to CLJS files and recompiles them for you.
+A simple shell script that watches for changes to CLJS files and recompiles them for you.
 
 ## Usage
+
+You must have ClojureScript already setup and have $CLOJURESCRIPT_HOME correctly set. 
 
 Put `cljs-watch` on your $PATH (such as in /usr/local/bin) and then simply run it from a terminal:
 
