@@ -77,7 +77,7 @@
   (let [{:keys [source options]} (transform-cl-args *command-line-args*)
         src-dir (or source "src/")
         opts (merge default-opts options)]
-    (.mkdirs (file (:output-to opts)))
+    (.mkdirs (file (:output-dir opts)))
     (watcher-print "Building ClojureScript files in ::" src-dir)
     (compile-cljs src-dir opts)
     (status-print "[done]")
