@@ -43,7 +43,10 @@
       (ext-filter dir-files "cljs")))
 
   (defn compile-cljs [src-dir opts]
-    (cljsc/build src-dir opts)
+    (try 
+      (cljsc/build src-dir opts)
+      (catch Throwable e
+        (.printStackTrace e)))
     (reset! last-compiled (System/currentTimeMillis)))
 
   (defn newer? [f]
