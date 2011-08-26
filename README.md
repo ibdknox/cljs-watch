@@ -13,7 +13,7 @@ Put `cljs-watch` on your $PATH (such as in /usr/local/bin) and then simply run i
 cljs-watch
 
 #it can also take a directory and compile options
-cljs-watch cljs-src/ {:optimizations :none}
+cljs-watch cljs-src/ {:optimizations :none :output-to \"test.js\"}
 ```
 
 ## Notes
