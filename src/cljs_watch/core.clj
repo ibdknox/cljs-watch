@@ -6,9 +6,9 @@
 (do
 
   (defn text-timestamp []
-  (let [c (Calendar/getInstance)
-        f (SimpleDateFormat. "HH:mm:ss")]
-    (.format f (.getTime c))))
+    (let [c (Calendar/getInstance)
+          f (SimpleDateFormat. "HH:mm:ss")]
+      (.format f (.getTime c))))
 
   (def default-opts {:optimizations :simple
                      :pretty-print true
@@ -78,7 +78,7 @@
           opts-string (apply str (interpose " " (rest args)))
           options (when (> (count opts-string) 1)
                     (try (read-string opts-string)
-                      (catch Exception e (println e))))]
+                         (catch Exception e (println e))))]
       {:source source :options options}))
 
   (let [{:keys [source options]} (transform-cl-args *command-line-args*)
