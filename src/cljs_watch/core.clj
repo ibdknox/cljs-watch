@@ -1,7 +1,14 @@
 (use '[clojure.java.io :only [file]])
 (require '[cljs.closure :as cljsc])
+(import '[java.util Calendar])
+(import '[java.text SimpleDateFormat])
 
 (do
+
+  (defn text-timestamp []
+    (let [c (Calendar/getInstance)
+          f (SimpleDateFormat. "HH:mm:ss")]
+      (.format f (.getTime c))))
 
   (def default-opts {:optimizations :simple
                      :pretty-print true
@@ -43,7 +50,7 @@
       (ext-filter dir-files "cljs")))
 
   (defn compile-cljs [src-dir opts]
-    (try 
+    (try
       (cljsc/build src-dir opts)
       (catch Throwable e
         (.printStackTrace e)))
@@ -57,7 +64,7 @@
     (some newer? (find-cljs dir)))
 
   (defn watcher-print [& text]
-    (print (style ":: watcher :: " :magenta))
+    (print (style (str (text-timestamp) " :: watcher :: ") :magenta))
     (apply print text)
     (flush))
 
@@ -71,7 +78,7 @@
           opts-string (apply str (interpose " " (rest args)))
           options (when (> (count opts-string) 1)
                     (try (read-string opts-string)
-                      (catch Exception e (println e))))]
+                         (catch Exception e (println e))))]
       {:source source :options options}))
 
   (let [{:keys [source options]} (transform-cl-args *command-line-args*)

@@ -8,8 +8,17 @@ exec java -server -Xmx2G -Xms2G -Xmn256m -cp "${CLJS_LIB}:${CLJS_SRC}:${CLJS_CLJ
 "
 (use '[clojure.java.io :only [file]])
 (require '[cljs.closure :as cljsc])
+(import '[java.util Calendar])
+(import '[java.text SimpleDateFormat])
+
+
 
 (do
+
+  (defn text-timestamp []
+  (let [c (Calendar/getInstance)
+        f (SimpleDateFormat. \"HH:mm:ss\")]
+    (.format f (.getTime c))))
 
   (def default-opts {:optimizations :simple
                      :pretty-print true
@@ -51,7 +60,7 @@ exec java -server -Xmx2G -Xms2G -Xmn256m -cp "${CLJS_LIB}:${CLJS_SRC}:${CLJS_CLJ
       (ext-filter dir-files \"cljs\")))
 
   (defn compile-cljs [src-dir opts]
-    (try 
+    (try
       (cljsc/build src-dir opts)
       (catch Throwable e
         (.printStackTrace e)))
@@ -65,7 +74,7 @@ exec java -server -Xmx2G -Xms2G -Xmn256m -cp "${CLJS_LIB}:${CLJS_SRC}:${CLJS_CLJ
     (some newer? (find-cljs dir)))
 
   (defn watcher-print [& text]
-    (print (style \":: watcher :: \" :magenta))
+    (print (style (str (text-timestamp) \" :: watcher :: \") :magenta))
     (apply print text)
     (flush))
 
