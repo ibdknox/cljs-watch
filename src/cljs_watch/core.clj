@@ -1,9 +1,12 @@
 (use '[clojure.java.io :only [file]])
 (require '[cljs.closure :as cljsc])
-(import '[java.util Calendar])
-(import '[java.text SimpleDateFormat])
 
+;;wrap everything in a do to prevent the ouput, as a file
+;;this is unnecessary, but from clojure.main -e it makes a 
+;;difference
 (do
+  (import '[java.util Calendar])
+  (import '[java.text SimpleDateFormat])
 
   (defn text-timestamp []
     (let [c (Calendar/getInstance)

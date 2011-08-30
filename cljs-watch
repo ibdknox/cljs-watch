@@ -8,17 +8,15 @@ exec java -server -Xmx2G -Xms2G -Xmn256m -cp "${CLJS_LIB}:${CLJS_SRC}:${CLJS_CLJ
 "
 (use '[clojure.java.io :only [file]])
 (require '[cljs.closure :as cljsc])
-(import '[java.util Calendar])
-(import '[java.text SimpleDateFormat])
-
-
 
 (do
+  (import '[java.util Calendar])
+  (import '[java.text SimpleDateFormat])
 
   (defn text-timestamp []
-  (let [c (Calendar/getInstance)
-        f (SimpleDateFormat. \"HH:mm:ss\")]
-    (.format f (.getTime c))))
+    (let [c (Calendar/getInstance)
+          f (SimpleDateFormat. \"HH:mm:ss\")]
+      (.format f (.getTime c))))
 
   (def default-opts {:optimizations :simple
                      :pretty-print true
