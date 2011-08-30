@@ -64,7 +64,7 @@
     (some newer? (find-cljs dir)))
 
   (defn watcher-print [& text]
-    (print (style ":: watcher :: " :magenta))
+    (print (style (str (text-timestamp) " :: watcher :: ") :magenta))
     (apply print text)
     (flush))
 
