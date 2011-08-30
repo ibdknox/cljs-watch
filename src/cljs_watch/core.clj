@@ -1,7 +1,14 @@
 (use '[clojure.java.io :only [file]])
 (require '[cljs.closure :as cljsc])
+(import '[java.util Calendar])
+(import '[java.text SimpleDateFormat])
 
 (do
+
+  (defn text-timestamp []
+  (let [c (Calendar/getInstance)
+        f (SimpleDateFormat. "HH:mm:ss")]
+    (.format f (.getTime c))))
 
   (def default-opts {:optimizations :simple
                      :pretty-print true
@@ -43,7 +50,7 @@
       (ext-filter dir-files "cljs")))
 
   (defn compile-cljs [src-dir opts]
-    (try 
+    (try
       (cljsc/build src-dir opts)
       (catch Throwable e
         (.printStackTrace e)))
@@ -85,6 +92,8 @@
     (while true
       (Thread/sleep 1000)
       (when (files-updated? src-dir)
-        (watcher-print "Compiling updated files...")
+        (watcher-print (str
+                        (text-timestamp)
+                        "Compiling updated files..."))
         (compile-cljs src-dir opts)
         (status-print "[done]")))))
