@@ -92,8 +92,6 @@
     (while true
       (Thread/sleep 1000)
       (when (files-updated? src-dir)
-        (watcher-print (str
-                        (text-timestamp)
-                        "Compiling updated files..."))
+        (watcher-print "Compiling updated files...")
         (compile-cljs src-dir opts)
         (status-print "[done]")))))
