@@ -4,7 +4,7 @@ CLJS_LIB=$CLOJURESCRIPT_HOME/lib/*
 CLJS_SRC=$CLOJURESCRIPT_HOME/src/clj
 CLJS_CLJS=$CLOJURESCRIPT_HOME/src/cljs
 
-exec java -server -Xmx2G -Xms2G -Xmn256m -cp "${CLJS_LIB}:${CLJS_SRC}:${CLJS_CLJS}:lib/*:src/" clojure.main -e \
+exec java -server -Xmx2G -Xms2G -Xmn256m -cp "${CLJS_LIB}:${CLJS_SRC}:${CLJS_CLJS}:lib/*" clojure.main -e \
 "
 (use '[clojure.java.io :only [file]])
 (require '[cljs.closure :as cljsc])
