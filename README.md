@@ -13,12 +13,13 @@ Put `cljs-watch` on your $PATH (such as in /usr/local/bin) and then simply run i
 cljs-watch
 
 #it can also take a directory and compile options
-cljs-watch cljs-src/ {:optimizations :none :output-to \"test.js\"}
+cljs-watch cljs-src/ '{:optimizations :none :output-to "test.js"}'
 ```
 
 ## Notes
 * the default output-to is set to `resources/public/cljs/bootstrap.js`
 * it will add the local `lib/` to your classpath when you run it, allowing you to have other cljs deps in that folder
+* to add custom macros, you can use create a folder called cljs-macros/ from the root directory and add your macros there. You can also put macros in `CLOJURESCRIPT_HOME/lib/` to have them globally available.
 
 ## License
 
