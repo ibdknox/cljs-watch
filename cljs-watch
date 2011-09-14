@@ -8,7 +8,7 @@ LOCAL_LIB_JARS=lib/*
 LOCAL_LIB=lib/
 LOCAL_MACROS=cljs-macros/
 
-exec java -server -Xmx2G -Xms2G -Xmn256m -cp "${CLJS_LIB}:${CLJS_LIB_JARS}:${CLJS_SRC}:${CLJS_CLJS}:${LOCAL_LIB}:${LOCAL_LIB_JARS}:${LOCAL_MACROS}" clojure.main -e \
+exec java -server -cp "${CLJS_LIB}:${CLJS_LIB_JARS}:${CLJS_SRC}:${CLJS_CLJS}:${LOCAL_LIB}:${LOCAL_LIB_JARS}:${LOCAL_MACROS}" clojure.main -e \
 "
 (use '[clojure.java.io :only [file]])
 (require '[cljs.closure :as cljsc])
