@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 CLJS_LIB=$CLOJURESCRIPT_HOME/lib/
 CLJS_LIB_JARS=$CLOJURESCRIPT_HOME/lib/*
