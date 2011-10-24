@@ -8,7 +8,14 @@ LOCAL_LIB_JARS=lib/*
 LOCAL_LIB=lib/
 LOCAL_MACROS=cljs-macros/
 
-exec java -server -cp "${CLJS_LIB}:${CLJS_LIB_JARS}:${CLJS_SRC}:${CLJS_CLJS}:${LOCAL_LIB}:${LOCAL_LIB_JARS}:${LOCAL_MACROS}" clojure.main -e \
+CLJSC_CP="${CLJS_LIB}:${CLJS_LIB_JARS}:${CLJS_SRC}:${CLJS_CLJS}:${LOCAL_LIB}:${LOCAL_LIB_JARS}:${LOCAL_MACROS}"
+
+# Support for windows
+if [[ `uname` == CYGWIN* ]]; then
+    CLJSC_CP=`cygpath --path --windows "$CLJSC_CP"`
+fi
+
+exec java -server -cp $CLJSC_CP clojure.main -e \
 "
 (use '[clojure.java.io :only [file]])
 (require '[cljs.closure :as cljsc])
