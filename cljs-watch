@@ -14,8 +14,6 @@ if [[ `uname` == CYGWIN* ]]; then
     CLJSC_CP=`cygpath --path --windows "$CLJSC_CP"`
 fi
 
-echo "${CLJS_CP}"
-
 exec java -server -cp $CLJSC_CP clojure.main -e \
 "
 (use '[clojure.java.io :only [file]])
