@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 CLJS_LIB=$CLOJURESCRIPT_HOME/lib/
 CLJS_LIB_JARS=$CLOJURESCRIPT_HOME/lib/*
@@ -10,10 +10,11 @@ LOCAL_MACROS=cljs-macros/
 
 CLJSC_CP="${CLJS_LIB}:${CLJS_LIB_JARS}:${CLJS_SRC}:${CLJS_CLJS}:${LOCAL_LIB}:${LOCAL_LIB_JARS}:${LOCAL_MACROS}"
 
-# Support for windows
 if [[ `uname` == CYGWIN* ]]; then
     CLJSC_CP=`cygpath --path --windows "$CLJSC_CP"`
 fi
+
+echo "${CLJS_CP}"
 
 exec java -server -cp $CLJSC_CP clojure.main -e \
 "
