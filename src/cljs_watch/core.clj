@@ -84,9 +84,17 @@
                          (catch Exception e (println e))))]
       {:source source :options options}))
 
+   (defn get-opts
+     [options]
+     (let [ret (merge default-opts options)]
+       ;; Remove the :optimizations key if it's  :none
+       (if (= (:optimizations ret) :none)
+         (dissoc ret :optimizations)
+         ret)))
+  
   (let [{:keys [source options]} (transform-cl-args *command-line-args*)
         src-dir (or source "src/")
-        opts (merge default-opts options)]
+        opts (get-opts options)]
     (.mkdirs (file (:output-dir opts)))
     (watcher-print "Building ClojureScript files in ::" src-dir)
     (compile-cljs src-dir opts)
