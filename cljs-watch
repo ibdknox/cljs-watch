@@ -8,7 +8,15 @@ LOCAL_LIB_JARS=lib/*
 LOCAL_LIB=lib/
 LOCAL_MACROS=cljs-macros/
 
-exec java -server -cp "${CLJS_LIB}:${CLJS_LIB_JARS}:${CLJS_SRC}:${CLJS_CLJS}:${LOCAL_LIB}:${LOCAL_LIB_JARS}:${LOCAL_MACROS}" clojure.main -e \
+CLJSC_CP="${CLJS_LIB}:${CLJS_LIB_JARS}:${CLJS_SRC}:${CLJS_CLJS}:${LOCAL_LIB}:${LOCAL_LIB_JARS}:${LOCAL_MACROS}"
+
+if test $1 == "-cp"
+then
+  CLJSC_CP=$CLJSC_CP:$2
+  shift; shift
+fi
+
+exec java -server -cp "$CLJSC_CP" clojure.main -e \
 "
 (use '[clojure.java.io :only [file]])
 (require '[cljs.closure :as cljsc])
