@@ -9,7 +9,7 @@ LOCAL_LIB=lib/
 LOCAL_MACROS=cljs-macros/
 
 CLJSC_CP="${CLJS_LIB}:${CLJS_LIB_JARS}:${CLJS_SRC}:${CLJS_CLJS}:${LOCAL_LIB}:${LOCAL_LIB_JARS}:${LOCAL_MACROS}"
-export CLASSPATH=$CLASSPATH:$CLJSC_CP
+export CLASSPATH="${CLASSPATH}:${CLJSC_CP}"
 
 # Remove cmnd from args list
 shift;
