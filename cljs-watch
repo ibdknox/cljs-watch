@@ -9,17 +9,16 @@ LOCAL_LIB=lib/
 LOCAL_MACROS=cljs-macros/
 
 CLJSC_CP="${CLJS_LIB}:${CLJS_LIB_JARS}:${CLJS_SRC}:${CLJS_CLJS}:${LOCAL_LIB}:${LOCAL_LIB_JARS}:${LOCAL_MACROS}"
+export CLASSPATH=$CLASSPATH:$CLJSC_CP
 
-if test $1 == "-cp"
-then
-  CLJSC_CP=$CLJSC_CP:$2
-  shift; shift
-fi
+# Remove cmnd from args list
+shift;
 
-exec java -server -cp "$CLJSC_CP" clojure.main -e \
+exec java -server clojure.main -e \
 "
 (use '[clojure.java.io :only [file]])
 (require '[cljs.closure :as cljsc])
+(require '[clojure.tools.cli :as cli])
 
 (do
   (import '[java.util Calendar])
@@ -92,26 +91,50 @@ exec java -server -cp "$CLJSC_CP" clojure.main -e \
     (print \"    \" (style text :green) \"\n\")
     (flush))
 
-  (defn transform-cl-args
-    [args]
-    (let [source (first args)
-          opts-string (apply str (interpose \" \" (rest args)))
-          options (when (> (count opts-string) 1)
-                    (try (read-string opts-string)
-                      (catch Exception e (println e))))]
-      {:source source :options options}))
+  (defn- parse-options [extra]
+    (let [opts-string (apply str (interpose \" \" extra))]
+      (if (empty? opts-string)
+        {}
+        (try (let [opts (read-string opts-string)]
+                (if (map? opts)
+                  opts
+                  (do
+                    (println \"cljs options must be in map syntax\")
+                    {})))
+          (catch Exception e (println e))))))
 
-  (let [{:keys [source options]} (transform-cl-args *command-line-args*)
-        src-dir (or source \"src/\")
-        opts (merge default-opts options)]
-    (watcher-print \"Building ClojureScript files in ::\" src-dir)
-    (compile-cljs src-dir opts)
-    (status-print \"[done]\")
-    (watcher-print \"Waiting for changes\n\")
-    (while true
-      (Thread/sleep 1000)
-      (when (files-updated? src-dir)
-        (watcher-print \"Compiling updated files...\")
-        (compile-cljs src-dir opts)
-        (status-print \"[done]\")))))
-" $1 $*
+  (defn nop [])
+  (defn- create-done-fn [argsmap]
+    (if (:bell argsmap)
+      (if-let [cmd (:bell-cmd argsmap)]
+        #(.exec (Runtime/getRuntime) cmd)
+        #(do (print \\u0007) (flush))
+      )
+      nop))
+
+  (defn transform-cl-args [args]
+    (let [[argmap extra] (cli/cli args
+            [\"-s\" \"--source\"    \"Source file or directory\" :default \"src/\"]
+            [\"-b\" \"--bell\"      \"Uses system beep to indicate a finished compile\" :flag true]
+            [\"-c\" \"--bell-cmd\"  \"Use this to customize the beep command\"])
+          options (parse-options extra)]
+        (assoc argmap :options options)))
+
+  (let [
+    argsmap (transform-cl-args *command-line-args*)
+    {src-dir :source, :keys [options]} argsmap
+    donefn (create-done-fn argsmap)
+    opts (merge default-opts options)]
+      (.mkdirs (file (:output-dir opts)))
+      (watcher-print \"Building ClojureScript files in ::\" src-dir)
+      (compile-cljs src-dir opts)
+      (status-print \"[done]\")
+      (watcher-print \"Waiting for changes\n\")
+      (while true
+        (Thread/sleep 1000)
+        (when (files-updated? src-dir)
+          (watcher-print \"Compiling updated files...\")
+          (compile-cljs src-dir opts)
+          (status-print \"[done]\")
+          (donefn)))))
+" $*
