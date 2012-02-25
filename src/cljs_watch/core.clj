@@ -14,9 +14,7 @@
           f (SimpleDateFormat. "HH:mm:ss")]
       (.format f (.getTime c))))
 
-  (def default-opts {:optimizations :simple
-                     :pretty-print true
-                     :output-dir "resources/public/cljs/"
+  (def default-opts {:output-dir "resources/public/cljs/"
                      :output-to "resources/public/cljs/bootstrap.js"})
 
   (def ANSI-CODES
