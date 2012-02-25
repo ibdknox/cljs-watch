@@ -91,17 +91,17 @@
   (defn nop [])
   (defn- create-done-fn [argsmap]
     (if (:bell argsmap)
+      #(do (print \u0007) (flush))
       (if-let [cmd (:bell-cmd argsmap)]
         #(.exec (Runtime/getRuntime) cmd)
-        #(do (print \u0007) (flush))
-      )
-      nop))
+        nop
+      )))
 
   (defn transform-cl-args [args]
     (let [[argmap extra] (cli/cli args
             ["-s" "--source"    "Source file or directory" :default "src/"]
             ["-b" "--bell"      "Uses system beep to indicate a finished compile" :flag true]
-            ["-c" "--bell-cmd"  "Use this to customize the beep command"])
+            ["-c" "--bell-cmd"  "Use this to customize the beep command e.g. growlnotify -m compile-done cljs-watch"])
           options (parse-options extra)]
         (assoc argmap :options options)))
 
@@ -114,6 +114,7 @@
       (watcher-print "Building ClojureScript files in ::" src-dir)
       (compile-cljs src-dir opts)
       (status-print "[done]")
+      (donefn)
       (watcher-print "Waiting for changes\n")
       (while true
         (Thread/sleep 1000)
