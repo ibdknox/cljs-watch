@@ -1,5 +1,6 @@
 (use '[clojure.java.io :only [file]])
 (require '[cljs.closure :as cljsc])
+(require '[clojure.tools.cli :as cli])
 
 ;;wrap everything in a do to prevent the ouput, as a file
 ;;this is unnecessary, but from clojure.main -e it makes a 
@@ -13,9 +14,7 @@
           f (SimpleDateFormat. "HH:mm:ss")]
       (.format f (.getTime c))))
 
-  (def default-opts {:optimizations :simple
-                     :pretty-print true
-                     :output-dir "resources/public/cljs/"
+  (def default-opts {:output-dir "resources/public/cljs/"
                      :output-to "resources/public/cljs/bootstrap.js"})
 
   (def ANSI-CODES
@@ -75,26 +74,50 @@
     (print "    " (style text :green) "\n")
     (flush))
 
-  (defn transform-cl-args
-    [args]
-    (let [source (first args)
-          opts-string (apply str (interpose " " (rest args)))
-          options (when (> (count opts-string) 1)
-                    (try (read-string opts-string)
-                         (catch Exception e (println e))))]
-      {:source source :options options}))
+  (defn- parse-options [extra]
+    (let [opts-string (apply str (interpose " " extra))]
+      (if (empty? opts-string)
+        {}
+        (try (let [opts (read-string opts-string)]
+                (if (map? opts)
+                  opts
+                  (do
+                    (println "cljs options must be in map syntax")
+                    {})))
+          (catch Exception e (println e))))))
 
-  (let [{:keys [source options]} (transform-cl-args *command-line-args*)
-        src-dir (or source "src/")
-        opts (merge default-opts options)]
-    (.mkdirs (file (:output-dir opts)))
-    (watcher-print "Building ClojureScript files in ::" src-dir)
-    (compile-cljs src-dir opts)
-    (status-print "[done]")
-    (watcher-print "Waiting for changes\n")
-    (while true
-      (Thread/sleep 1000)
-      (when (files-updated? src-dir)
-        (watcher-print "Compiling updated files...")
-        (compile-cljs src-dir opts)
-        (status-print "[done]")))))
+  (defn nop [])
+  (defn- create-done-fn [argsmap]
+    (if (:bell argsmap)
+      #(do (print \u0007) (flush))
+      (if-let [cmd (:bell-cmd argsmap)]
+        #(.exec (Runtime/getRuntime) cmd)
+        nop
+      )))
+
+  (defn transform-cl-args [args]
+    (let [[argmap extra] (cli/cli args
+            ["-s" "--source"    "Source file or directory" :default "src/"]
+            ["-b" "--bell"      "Uses system beep to indicate a finished compile" :flag true]
+            ["-c" "--bell-cmd"  "Use this to customize the beep command e.g. growlnotify -m compile-done cljs-watch"])
+          options (parse-options extra)]
+        (assoc argmap :options options)))
+
+  (let [
+    argsmap (transform-cl-args *command-line-args*)
+    {src-dir :source, :keys [options]} argsmap
+    donefn (create-done-fn argsmap)
+    opts (merge default-opts options)]
+      (.mkdirs (file (:output-dir opts)))
+      (watcher-print "Building ClojureScript files in ::" src-dir)
+      (compile-cljs src-dir opts)
+      (status-print "[done]")
+      (donefn)
+      (watcher-print "Waiting for changes\n")
+      (while true
+        (Thread/sleep 1000)
+        (when (files-updated? src-dir)
+          (watcher-print "Compiling updated files...")
+          (compile-cljs src-dir opts)
+          (status-print "[done]")
+          (donefn)))))
