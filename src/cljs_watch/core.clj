@@ -48,9 +48,22 @@
                 (and (not= \. (first fname)) (.isFile f) (= fext ext))))
             coll))
 
+  (defn generic? [ns-form]
+    (-> ns-form (nth 2) :generic))
+
+  (def extract-ns
+    (partial some #(when (= (first %) 'ns) %)))
+
+  (defn structurize [source-file]
+    (->> (slurp source-file)
+         (format "(%s)")
+         (read-string)))
+
   (defn find-cljs [dir]
     (let [dir-files (-> dir file file-seq)]
-      (ext-filter dir-files "cljs")))
+      (->> (ext-filter dir-files "clj")
+           (filter (comp generic? extract-ns structurize))
+           (concat (ext-filter dir-files "cljs")))))
 
   (defn compile-cljs [src-dir opts]
     (try
@@ -83,7 +96,7 @@
                     (try (read-string opts-string)
                          (catch Exception e (println e))))]
       {:source source :options options}))
-
+  
   (let [{:keys [source options]} (transform-cl-args *command-line-args*)
         src-dir (or source "src/")
         opts (merge default-opts options)]
